@@ -88,11 +88,14 @@ class PiVideoWindow(QMainWindow):
 	def initUI(self):
 		self.canvas = QPixmap(560, 320)
 		self.painterWidget = QLabel()
+		self.painterWidget.setStyleSheet("color: white; background: black;")
 		self.painterWidget.setPixmap(self.canvas)
 		self.setCentralWidget(self.painterWidget)
 
 		self.setWindowTitle(u"Close-to-Realtime Raspivid UDP Viewer/Server")
 		self.show()
+		self.painterWidget.setAlignment(Qt.AlignCenter)
+		self.painterWidget.setText("Awaiting UDP streaming from Raspberry Pi")
 
 	def imageRefresh(self):
 		data = self.serverWorker.img
