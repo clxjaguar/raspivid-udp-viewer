@@ -25,12 +25,21 @@ from PyQt5.QtWidgets import *
 class ServerWorker(QObject):
 	newFrame = pyqtSignal()
 
-	def run(self, port=1234):
+	def __init__(self, port=1234):
+		QObject.__init__(self)
+		self.port = port
+		self.serverThread = QThread()
+		self.serverThread.setObjectName("UDP Server Thread")
+		self.moveToThread(self.serverThread)
+		self.serverThread.started.connect(self.run)
+		self.serverThread.start()
+
+	def run(self):
 		self.exitLoop = False
 		bufferSize  = 100000
 
 		receive_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-		receive_socket.bind(('', port))
+		receive_socket.bind(('', self.port))
 
 		frameCounter=0; frameCounterSaved = 0; nextFrameCounterTime = time.time()+1
 		img=b''; i = 0; lastSize = 0
@@ -58,18 +67,11 @@ class ServerWorker(QObject):
 
 class PiVideoWindow(QMainWindow):
 	def __init__(self):
-		super(PiVideoWindow, self).__init__()
+		QMainWindow.__init__(self)
 		self.isMousePressed = False
 		self.initUI()
-
-		self.serverThread = QThread()
-		self.serverThread.setObjectName("Server Thread")
 		self.serverWorker = ServerWorker()
-		self.serverWorker.moveToThread(self.serverThread)
-
-		self.serverThread.started.connect(self.serverWorker.run)
 		self.serverWorker.newFrame.connect(self.imageRefresh)
-		self.serverThread.start()
 
 	def mousePressEvent(self, event):
 		if self.childAt(event.pos()) == self.painterWidget:
