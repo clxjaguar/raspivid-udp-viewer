@@ -106,7 +106,6 @@ class PiVideoWindow(QMainWindow):
 def main():
 	app = QApplication(sys.argv)
 	win = PiVideoWindow()
-	app.installEventFilter(win)
 	ret = app.exec_()
 	sys.exit(ret)
 
